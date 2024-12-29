@@ -1,5 +1,6 @@
 import logging
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
+from telegram import Message
 import torch
 from diffusers import StableDiffusionPipeline, EulerDiscreteScheduler
 
@@ -9,7 +10,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(name)
 
 
 # Define a few command handlers
@@ -41,11 +42,14 @@ async def gen_img(update, context):
     if len(prompt) > max_length:
         update.message.reply_text(f"Your message is too long (max {max_length} characters).")
     else:
-        # image_path = 'astronaut_rides_horse.png'
+        loading_message: Message = await update.message.reply_text("🔄 Generating image, please wait...")
+        image_path = 'generated.png'
         try:
             pipe = context.bot_data.get('default_pipe')
-            image = pipe(prompt).images[0]        
-            await update.message.reply_photo(photo=image, caption=f"Here is your image for: '{prompt}'")
+            image = pipe(prompt).images[0]
+            image.save(image_path)
+            with open(image_path, 'rb') as image:
+                await update.message.reply_photo(photo=image, caption=f"Here is your image for: '{prompt}'")
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}")
 
@@ -91,5 +95,5 @@ def main():
     # updater.idle()
 
 
-if __name__ == '__main__':
+if name == 'main':
     main()
