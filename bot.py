@@ -10,7 +10,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO)
 
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)
 
 
 # Define a few command handlers
@@ -95,5 +95,5 @@ def main():
     # updater.idle()
 
 
-if name == 'main':
+if name == '__main__':
     main()
